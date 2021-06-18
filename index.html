@@ -1,0 +1,145 @@
+<script type="text/javascript" src="https://unpkg.com/vue"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-jest@3.0.7/vue-jest.min.js"></script>
+
+<div id="app">
+  <div id="panel">
+    <label for=""> Tag : </label>
+    <select id="sel" v-model="selectedtag" @change="getCat">
+      <option v-for="tag in tagslist">{{tag}}</option>
+    </select>
+    <label></label>
+
+    <p class="tp">Total Pics : {{totalPics}}</p>
+    <label for=""> || Pics Limit : </label>
+    <input class="li" type="text" v-model="limit" @input="getCat" />
+    <label for=""> || Pics in row : </label>
+    <select id="sel" v-model="picsInRow" @change="setHeigh">
+      <option value="100%">1</option>
+      <option value="50%">2</option>
+      <option value="33.33%">3</option>
+      <option value="25%">4</option>
+      <option value="20%">5</option>
+      <option value="16%">6</option>
+      <option value="14.2%">7</option>
+      <option value="12.5%">8</option>
+      <option value="11.1111%">9</option>
+      <option value="10%">10</option>
+    </select>
+  </div>
+  <hr />
+
+  <img
+    v-for="cat in showList"
+    :src="'https://cataas.com/cat/'+cat.id"
+    :width="picsInRow"
+    :height="picsHeigh"
+  />
+
+  <br />
+  {{selectedtag}}
+</div>
+
+<script>
+  new Vue({
+    el: "#app",
+    data: function () {
+      return {
+        selectedtag: "#christmascat",
+        picsInRow: "20%",
+        picsHeigh: "190px",
+        limit: 10,
+        catsList: [],
+        tagslist: [],
+        showList: [],
+        catUrl: "https://cataas.com/cat",
+        totalPics: 0,
+      };
+    },
+    methods: {
+      getCat: function () {
+        this.$http
+          .get("https://cataas.com/api/cats?tags=" + this.selectedtag)
+          .then(
+            (response) => {
+              this.catsList = response.body;
+              this.totalPics = this.catsList.length;
+              this.showList = this.catsList.splice(0, this.limit);
+            },
+            (response) => {
+              //error callback
+            }
+          );
+      },
+
+      getTags: function () {
+        this.$http.get("https://cataas.com/api/tags").then(
+          (response) => {
+            this.tagslist = response.body;
+          },
+          (response) => {
+            //error callback
+          }
+        );
+      },
+      setHeigh: function () {
+        if (this.picsInRow === "100%") {
+          return (this.picsHeigh = "450px");
+        } else {
+          return (this.picsHeigh = "190px");
+        }
+      },
+    },
+    created: function () {
+      this.getTags();
+      this.getCat();
+    },
+  });
+</script>
+
+<style>
+  body {
+    background-color: rgb(61, 58, 58);
+  }
+  h2 {
+    color: aqua;
+  }
+  #panel {
+    position: relative;
+    display: inline-flex;
+    padding: 2px;
+  }
+  #sel {
+    margin-right: 10px;
+  }
+  .tp {
+    margin: 1px 7px 3px 7px;
+    color: aqua;
+  }
+  label {
+    color: aqua;
+  }
+  .li {
+    width: 50px;
+  }
+
+  .textbox {
+    background: #f5f5f5;
+    font-size: 0.8rem;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    border: none;
+    padding: 13px 10px;
+    width: 270px;
+    margin-bottom: 20px;
+    box-shadow: inset 0px 2px 3px rgba(0, 0, 0, 0.1);
+    clear: both;
+  }
+  .textbox:focus {
+    background: #fff;
+    box-shadow: 0px 0px 0px 3px #fff38e, inset 0px 2px 3px rgba(0, 0, 0, 0.2),
+      0px 5px 5px rgba(0, 0, 0, 0.15);
+    outline: none;
+  }
+</style>
